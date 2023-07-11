@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
 
     plt.figure(figsize=(12, 8), dpi=100)
@@ -38,6 +39,7 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     # show confusion matrix
     # plt.savefig(savename, format='png')
     plt.show()
+
 
 def fade_in(waveform, sr):
     y = waveform.numpy()[0]

@@ -1,6 +1,7 @@
 from torch import nn
 from torchsummary import summary
 
+
 class SingleClassifier(nn.Module):
 
     def __init__(self):
@@ -65,6 +66,7 @@ class SingleClassifier(nn.Module):
         x = self.flatten(x)
         predictions = self.linear(x)
         return predictions
+
 
 class Classifier(nn.Module):
 
@@ -140,6 +142,7 @@ class Classifier(nn.Module):
         p5 = self.linear5(x)
 
         return [p1, p2, p3, p4, p5]
+
 
 if __name__ == "__main__":
     cnn = Classifier()

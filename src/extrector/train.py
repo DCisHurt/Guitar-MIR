@@ -1,12 +1,12 @@
 import torch
-import torchaudio
 from torch.utils.data import DataLoader
-from torchsummary import summary
 from torch import nn
+
 
 def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     return train_dataloader
+
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device, effect=0):
 
@@ -29,8 +29,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device, effect=0)
             loss, current = loss.item(), batch * len(X)
             print(f'loss: {loss:>8f}  [{current:>3d}/{size * len(X)}]')
 
+
 def test(model, data_loader, device, loss_fn=None, effect=0):
-    size = len(data_loader.dataset)
     nBatch = len(data_loader)
 
     model.eval()
@@ -38,7 +38,7 @@ def test(model, data_loader, device, loss_fn=None, effect=0):
     if loss_fn is None:
         loss_fn = nn.MSELoss(reduction='mean')
 
-    loss, correct = 0, 0
+    loss = 0
     log = []
 
     with torch.no_grad():
@@ -60,6 +60,7 @@ def test(model, data_loader, device, loss_fn=None, effect=0):
 
     return log
 
+
 def test_single(model, input_data, effect=0):
     model.eval()
 
@@ -68,7 +69,7 @@ def test_single(model, input_data, effect=0):
         # preds = model(X.unsqueeze_(0))
         preds = model(X)
         predicted = round(preds.item(), 2)
-        expected = round(labels[effect].item(), 2)
+        # expected = round(labels[effect].item(), 2)
 
         # print(f'"{filename}.wav": Predicted="{predicted}", Expected="{expected}"')
 

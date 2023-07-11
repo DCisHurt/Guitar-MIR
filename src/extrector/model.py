@@ -1,6 +1,7 @@
 from torch import nn
 from torchsummary import summary
 
+
 class Extractor(nn.Module):
 
     def __init__(self):
@@ -67,6 +68,7 @@ class Extractor(nn.Module):
         logits = self.linear(x)
         predictions = self.sigmoid(logits)
         return predictions
+
 
 if __name__ == "__main__":
     cnn = Extractor()

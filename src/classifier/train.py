@@ -1,12 +1,12 @@
 import torch
-import torchaudio
 from torch.utils.data import DataLoader
-from torchsummary import summary
 from torch import nn
+
 
 def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     return train_dataloader
+
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device, mode="multi", effect=0):
 
@@ -36,6 +36,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device, mode="mul
         if batch % 20 == 0:
             loss, current = loss.item(), batch * len(X)
             print(f'loss: {loss:>8f}  [{current:>3d}/{size * len(X)}]')
+
 
 def test(model, data_loader, device, loss_fn=None, mode="multi", effect=0):
     EFFECT_MAP = ["distortion", "chorus", "tremolo", "delay", "reverb"]
@@ -98,11 +99,12 @@ def test(model, data_loader, device, loss_fn=None, mode="multi", effect=0):
         print(f'Total: avg loss: {total_loss:>8f}\n')
     return log
 
+
 def test_single(model, input_data, mode="multi", effect=0):
     model.eval()
     sigmoid = nn.Sigmoid()
-    LABLE_MAP = ['bypass', 'activate']
-    EFFECT_MAP = ["distortion", "chorus", "tremolo", "delay", "reverb"]
+    # LABLE_MAP = ['bypass', 'activate']
+    # EFFECT_MAP = ["distortion", "chorus", "tremolo", "delay", "reverb"]
     result = []
     with torch.no_grad():
         X, labels, _, _, filename = input_data
@@ -110,7 +112,7 @@ def test_single(model, input_data, mode="multi", effect=0):
 
         if mode == "single":
             pred = 1 if sigmoid(preds[effect]) > 0.5 else 0
-            expt = 1 if labels[effect].item() == 1.0 else 0
+            # expt = 1 if labels[effect].item() == 1.0 else 0
             # print(f'"{filename}.wav": Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
             return pred
         else:
@@ -118,11 +120,12 @@ def test_single(model, input_data, mode="multi", effect=0):
             # print(f'"{filename}.wav": ')
             for output, target in zip(preds, labels):
                 pred = 1 if sigmoid(output) > 0.5 else 0
-                expt = 1 if target.item() == 1.0 else 0
+                # expt = 1 if target.item() == 1.0 else 0
                 # print(f'{EFFECT_MAP[i]}: Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
                 result.append(pred)
                 i += 1
     return result
+
 
 def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
           device, epochs, mode="multi", effect=0):
