@@ -113,7 +113,8 @@ def test_single(model, input_data, mode="multi", effect=0):
         if mode == "single":
             pred = 1 if sigmoid(preds[effect]) > 0.5 else 0
             # expt = 1 if labels[effect].item() == 1.0 else 0
-            # print(f'"{filename}.wav": Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
+            # print(f'"{filename}.wav":' , end='')
+            # print(f'Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
             return pred
         else:
             i = 0
@@ -121,7 +122,8 @@ def test_single(model, input_data, mode="multi", effect=0):
             for output, target in zip(preds, labels):
                 pred = 1 if sigmoid(output) > 0.5 else 0
                 # expt = 1 if target.item() == 1.0 else 0
-                # print(f'{EFFECT_MAP[i]}: Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
+                # print(f'{EFFECT_MAP[i]}:' , end='')
+                # print(f'Predicted="{LABLE_MAP[pred]}", Expected="{LABLE_MAP[expt]}"')
                 result.append(pred)
                 i += 1
     return result

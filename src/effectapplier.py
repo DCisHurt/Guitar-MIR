@@ -31,9 +31,9 @@ class EffectApplier():
         self.rv_v = -1
         self.board = pdb.Pedalboard()
 
-    def addDistortion(self, val, mode='random'):
+    def addDistortion(self, val, scale, mode='random'):
         if mode == 'random':
-            gain = self.__randomize(val, val + 0.2, gain=100.0)
+            gain = self.__randomize(val, scale, gain=100.0)
         else:
             gain = val * 100.0
 
@@ -46,28 +46,28 @@ class EffectApplier():
         self.board.append(pdb.Clipping(threshold_db=-3.0))
         self.board.append(pdb.Distortion(drive_db=gain_dB))
 
-        self.od = int(val / 0.2)
+        self.od = int(val / scale)
         self.od_v = round(gain / 100.0, 2)
         return gain
 
-    def addChorus(self, val, mode='random'):
+    def addChorus(self, val, scale, mode='random'):
         if mode == 'random':
-            depth = self.__randomize(val, val + 0.2)
+            depth = self.__randomize(val, scale)
         else:
             depth = val
 
         self.board.append(pdb.Chorus(rate_hz=0.5, depth=depth,
                                      centre_delay_ms=20.0, feedback=0.5, mix=0.5))
 
-        self.cs = int(val / 0.2)
+        self.cs = int(val / scale)
         self.cs_v = depth
         return depth
 
-    def addTremolo(self, val, mode='random'):
+    def addTremolo(self, val, scale, mode='random'):
         vst = pdb.load_plugin("_assets/TaS-X.vst3")
 
         if mode == 'random':
-            rate = self.__randomize(val, val + 0.2, gain=10.0)
+            rate = self.__randomize(val, scale, gain=10.0)
         else:
             rate = val * 10.0
 
@@ -77,13 +77,13 @@ class EffectApplier():
         vst.rate = rate
         self.board.append(vst)
 
-        self.tr = int(val / 0.2)
+        self.tr = int(val / scale)
         self.tr_v = round(rate / 10.0, 2)
         return rate
 
-    # def addPhaser(self, val, mode='random'):
+    # def addPhaser(self, val, scale=0.2, mode='random'):
     #     if mode == 'random':
-    #         depth = self.__randomize(val, val + 0.2)
+    #         depth = self.__randomize(val, scale)
 
     #     self.tr = int(val / 0.2)
 
@@ -92,42 +92,42 @@ class EffectApplier():
     #     self.tr_v = depth
     #     return depth
 
-    def addDelay(self, val, mode='random'):
+    def addDelay(self, val, scale, mode='random'):
         if mode == 'random':
-            time = self.__randomize(val, val + 0.2)
+            time = self.__randomize(val, scale)
         else:
             time = val
 
         self.board.append(pdb.Delay(delay_seconds=time + 0.02, feedback=0.5, mix=0.5))
 
-        self.dl = int(val / 0.2)
+        self.dl = int(val / scale)
         self.dl_v = time
         return time
 
-    def addReverb(self, val, mode='random'):
+    def addReverb(self, val, scale, mode='random'):
         if mode == 'random':
-            decay = self.__randomize(val, val + 0.2)
+            decay = self.__randomize(val, scale)
         else:
             decay = val
 
         self.board.append(pdb.Reverb(room_size=decay, damping=0.1, wet_level=0.75,
                                      dry_level=0.25, width=1.0, freeze_mode=0.0))
 
-        self.rv = int(val / 0.2)
+        self.rv = int(val / scale)
         self.rv_v = decay
         return decay
 
-    def addEffect(self, fx, val, mode='random'):
+    def addEffect(self, fx, val, scale=0.2, mode='random'):
         if (fx == 0):
-            self.addDistortion(val, mode)
+            self.addDistortion(val, scale, mode)
         elif (fx == 1):
-            self.addChorus(val, mode)
+            self.addChorus(val, scale, mode)
         elif (fx == 2):
-            self.addTremolo(val, mode)
+            self.addTremolo(val, scale, mode)
         elif (fx == 3):
-            self.addDelay(val, mode)
+            self.addDelay(val, scale, mode)
         elif (fx == 4):
-            self.addReverb(val, mode)
+            self.addReverb(val, scale, mode)
 
     def generate(self):
         effected = self.board(self.audio.numpy(), self.sr)
@@ -200,12 +200,14 @@ class EffectApplier():
         self.rv_v = -1
         self.board = pdb.Pedalboard()
 
-    def __randomize(self, min, max, gain=1):
-        val = min - 1
-        while val <= min or val >= max:
-            val = np.random.normal((min + max) / 2, 0.025, 1)
-            val = val[0]
-        return round(val * gain, 2)
+    def __randomize(self, val, scale, gain=1):
+        min_val = val - scale/2
+        max_val = min_val + scale
+        out = -1
+        while out <= min_val or out >= max_val:
+            out = np.random.normal(val, scale / 8, 1)
+            out = out[0]
+        return round(out * gain, 2)
 
     def __nonlinearCorrection(self, value, minv, maxv, coeff):
         return round(minv + (maxv - minv) * math.pow(value / 100.0, coeff), 2)
