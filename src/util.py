@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
-
-    plt.figure(figsize=(12, 8), dpi=100)
+    fig = plt.figure(figsize=(12, 8), dpi=100)
     np.set_printoptions(precision=2)
 
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -36,9 +35,8 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     plt.grid(True, which='minor', linestyle='-')
     plt.gcf().subplots_adjust(bottom=0.15)
 
-    # show confusion matrix
-    # plt.savefig(savename, format='png')
-    plt.show()
+    plt.show(block=False)
+    return fig
 
 
 def fade_in(waveform, sr):
@@ -76,3 +74,31 @@ def play_audio(waveform, sample_rate):
         display(Audio((waveform[0], waveform[1]), rate=sample_rate))
     else:
         raise ValueError("Waveform with more than 2 channels are not supported.")
+
+
+def plot_waveform(waveform, sr, title="Waveform"):
+    if type(waveform).__name__ == 'Tensor':
+        waveform = waveform.numpy()
+
+    fig = plt.figure(figsize=(12, 8), dpi=100)
+
+    num_channels, num_frames = waveform.shape
+    time_axis = torch.arange(0, num_frames) / sr
+
+    plt.plot(time_axis, waveform[0], linewidth=1)
+    plt.grid(True)
+    plt.xlim([0, time_axis[-1]])
+    plt.title(title)
+    plt.show(block=False)
+    return fig
+
+
+def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
+    fig = plt.figure(figsize=(12, 8), dpi=100)
+
+    if title is not None:
+        plt.title(title)
+    plt.ylabel(ylabel)
+    plt.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto", interpolation="nearest")
+    plt.show(block=False)
+    return fig
