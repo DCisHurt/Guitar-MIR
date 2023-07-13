@@ -1,0 +1,16 @@
+name: torchaudio
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - jupyter
+  - matplotlib
+  - numpy
+  - pip
+  - tensorboard
+  - pytorch
+  - pandas
+  - pip:
+      - librosa
+      - pedalboard
+      - torchaudio
