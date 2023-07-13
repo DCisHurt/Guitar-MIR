@@ -1,5 +1,5 @@
 from IPython.display import Audio, display
-import librosa
+import librosa as lb
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,10 +42,10 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
 def fade_in(waveform, sr):
     y = waveform.numpy()[0]
 
-    onset_envs = librosa.onset.onset_strength(y=y, sr=sr)
+    onset_envs = lb.onset.onset_strength(y=y, sr=sr)
     onset_frame = list(onset_envs).index(max(onset_envs))
     if onset_frame > 3:
-        onset_sample = librosa.frames_to_samples(onset_frame - 3)
+        onset_sample = lb.frames_to_samples(onset_frame - 3)
         end = onset_sample
         fade_curve = np.linspace(0.0, 0.25, end)
 
@@ -99,6 +99,6 @@ def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
     if title is not None:
         plt.title(title)
     plt.ylabel(ylabel)
-    plt.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto", interpolation="nearest")
+    plt.imshow(lb.power_to_db(specgram), origin="lower", aspect="auto", interpolation="nearest")
     plt.show(block=False)
     return fig
