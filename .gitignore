@@ -1,6 +1,7 @@
 legacy/
 _weights/
 _assets/
+_log/
 test.ipynb
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -12,13 +12,12 @@ def create_data_loader(train_data, batch_size):
 
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device, mode="multi", effect=0):
+    batch_size = data_loader.batch_size
+    total_size = len(data_loader.dataset)
+    n_batch = len(data_loader)
 
     model.train()
     sigmoid = nn.Sigmoid()
-
-    batch_size = data_loader.batch_size
-    total_size = len(data_loader.dataset)
-    nBatch = len(data_loader)
 
     if mode == "single":
         total_loss, correct = 0, 0
@@ -67,23 +66,19 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device, mode="mul
             print(f'loss: {loss:>8f}  [{current:>3d}/{total_size}]')
 
     if mode == "single":
-        total_loss /= nBatch
+        total_loss /= n_batch
         correct /= total_size
     else:
-        for i in range(len(loss)):
-            total_loss[i] /= nBatch
+        for i in range(len(total_loss)):
+            total_loss[i] /= n_batch
             correct[i] /= total_size
 
     return total_loss, correct, log
 
 
 def test(model, data_loader, device, loss_fn=None, mode="multi", effect=0):
-
     size = len(data_loader.dataset)
-    nBatch = len(data_loader)
-
-    model.eval()
-    sigmoid = nn.Sigmoid()
+    n_batch = len(data_loader)
 
     if loss_fn is None:
         loss_fn = nn.BCEWithLogitsLoss()
@@ -94,6 +89,9 @@ def test(model, data_loader, device, loss_fn=None, mode="multi", effect=0):
     else:
         loss, correct = [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]
         log = [[], [], [], [], []]
+
+    model.eval()
+    sigmoid = nn.Sigmoid()
 
     with torch.no_grad():
         for batch, data in enumerate(data_loader):
@@ -124,17 +122,17 @@ def test(model, data_loader, device, loss_fn=None, mode="multi", effect=0):
                     i += 1
 
     if mode == "single":
-        loss /= nBatch
+        loss /= n_batch
         correct /= size
         print(f'Accuracy: {(100*correct):>0.1f}%, avg loss: {loss:>8f}')
     else:
         total_loss = 0
         for i in range(len(loss)):
-            loss[i] /= nBatch
+            loss[i] /= n_batch
             correct[i] /= size
             total_loss += loss[i]
             print(f'{EFFECT_MAP[i]}: Accuracy: {(100*correct[i]):>0.1f}%, avg loss: {loss[i]:>8f}')
-        print(f'Total: avg loss: {total_loss:>8f}\n')
+        print(f'Total: avg loss: {total_loss:>8f}')
 
     return loss, correct, log
 
@@ -186,7 +184,7 @@ def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
             writer.add_scalars("Loss", {'train': tr_loss, 'test': ts_loss}, epoch)
             writer.add_scalars("Accuracy", {'train': tr_acc, 'test': ts_acc}, epoch)
         else:
-            for i in range(len(tr_loss)):
+            for i in range(5):
                 writer.add_scalars("Loss/" + EFFECT_MAP[i],
                                    {'train': tr_loss[i], 'test': ts_loss[i]}, epoch)
                 writer.add_scalars("Accuracy/" + EFFECT_MAP[i],
@@ -197,6 +195,6 @@ def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
         scheduler.step()
         after_lr = optimiser.param_groups[0]["lr"]
 
-        print("learning rate: %.6f -> %.6f" % (before_lr, after_lr))
+        print("learning rate: %f -> %f" % (before_lr, after_lr))
         print("---------------------------\n")
     print("Finished training")

@@ -14,3 +14,4 @@ dependencies:
       - librosa
       - pedalboard
       - torchaudio
+      - torch-tb-profiler

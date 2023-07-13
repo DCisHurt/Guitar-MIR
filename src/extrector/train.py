@@ -1,6 +1,9 @@
 import torch
 from torch.utils.data import DataLoader
 from torch import nn
+import torch.optim.lr_scheduler as lr_scheduler
+
+EFFECT_MAP = ["distortion", "chorus", "tremolo", "delay", "reverb"]
 
 
 def create_data_loader(train_data, batch_size):
@@ -9,37 +12,57 @@ def create_data_loader(train_data, batch_size):
 
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device, effect=0):
+    batch_size = data_loader.batch_size
+    total_size = len(data_loader.dataset)
+    n_batch = len(data_loader)
+
+    total_loss, abs_error = 0, 0
+    log = []
 
     model.train()
-    size = len(data_loader)
+
     for batch, data in enumerate(data_loader):
 
-        X, _, _, labels, _ = data
+        X, _, _, labels, filenames = data
         X = X.to(device)
 
         optimiser.zero_grad()
         preds = model(X)
 
         loss = loss_fn(preds, labels[effect].view(-1, 1))
+        total_loss += loss
+
+        for index, name in enumerate(filenames):
+            output = round(preds[index].item(), 2)
+            target = round(labels[effect][index].item(), 2)
+            error = round(output - target, 2)
+            abs_error += abs(error)
+            log.append([name, output, target, error])
 
         loss.backward()
         optimiser.step()
 
         if batch % 20 == 0:
-            loss, current = loss.item(), batch * len(X)
-            print(f'loss: {loss:>8f}  [{current:>3d}/{size * len(X)}]')
+            loss, current = loss.item(), batch * batch_size
+            print(f'loss: {loss:>8f}  [{current:>3d}/{total_size}]')
+
+    loss /= n_batch
+    abs_error = round(abs_error/total_size, 2)
+
+    return loss, abs_error, log
 
 
 def test(model, data_loader, device, loss_fn=None, effect=0):
-    nBatch = len(data_loader)
-
-    model.eval()
+    n_batch = len(data_loader)
+    total_size = len(data_loader.dataset)
 
     if loss_fn is None:
         loss_fn = nn.MSELoss(reduction='mean')
 
-    loss = 0
+    loss, abs_error = 0, 0
     log = []
+
+    model.eval()
 
     with torch.no_grad():
         for batch, data in enumerate(data_loader):
@@ -51,14 +74,17 @@ def test(model, data_loader, device, loss_fn=None, effect=0):
             loss += loss_fn(preds, labels[effect].view(-1, 1))
 
             for index, name in enumerate(filenames):
-                output = preds[index]
-                target = labels[effect][index]
-                log.append([name, round(output.item(), 2), round(target.item(), 2)])
+                output = round(preds[index].item(), 2)
+                target = round(labels[effect][index].item(), 2)
+                error = round(output - target, 2)
+                abs_error += abs(error)
+                log.append([name, output, target, error])
 
-    loss /= nBatch
-    print(f'avg MSE: {loss:>8f}')
+    loss /= n_batch
+    abs_error = round(abs_error/total_size, 2)
+    print(f'{EFFECT_MAP[effect]}: avg MSE: {loss:>8f}, avg abs error: {abs_error}')
 
-    return log
+    return loss, abs_error, log
 
 
 def test_single(model, input_data, effect=0):
@@ -77,10 +103,26 @@ def test_single(model, input_data, effect=0):
 
 
 def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
-          device, epochs, effect=0):
-    for i in range(epochs):
-        print(f"Epoch {i+1}")
-        train_single_epoch(model, train_data_loader, loss_fn, optimiser, device, effect)
-        test(model, test_data_loader, device, loss_fn, effect)
-        print("---------------------------")
+          device, writer, epochs, effect=0):
+    scheduler = lr_scheduler.LinearLR(optimiser, start_factor=1.0, end_factor=0.1, total_iters=10)
+    for epoch in range(1, epochs+1):
+        print(f"Epoch {epoch}")
+        tr_loss, tr_err, _ = train_single_epoch(model,
+                                                train_data_loader,
+                                                loss_fn,
+                                                optimiser,
+                                                device,
+                                                effect)
+        ts_loss, ts_err, _ = test(model, test_data_loader, device, loss_fn, effect)
+
+        writer.add_scalars("Loss/" + EFFECT_MAP[effect], {'train': tr_loss, 'test': ts_loss}, epoch)
+        writer.add_scalars("Error/" + EFFECT_MAP[effect], {'train': tr_err, 'test': ts_err}, epoch)
+
+        before_lr = optimiser.param_groups[0]["lr"]
+        writer.add_scalar("Learning Rate", before_lr, epoch)
+        scheduler.step()
+        after_lr = optimiser.param_groups[0]["lr"]
+
+        print("learning rate: %f -> %f" % (before_lr, after_lr))
+        print("---------------------------\n")
     print("Finished training")
