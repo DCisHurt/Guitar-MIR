@@ -1,4 +1,4 @@
-name: torchaudio
+name: gt_mir
 channels:
   - pytorch
   - defaults
