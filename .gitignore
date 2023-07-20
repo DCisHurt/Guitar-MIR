@@ -3,6 +3,8 @@ _weights/
 _assets/
 _log/
 test.ipynb
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

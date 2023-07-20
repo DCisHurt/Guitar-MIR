@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 from torch import nn
 import torch.optim.lr_scheduler as lr_scheduler
 
-EFFECT_MAP = ["distortion", "chorus", "tremolo", "delay", "reverb"]
+PARA_MAP = ["distortion gain", "chorus depth", "tremolo rate", "delay time", "reverb decay"]
 
 
 def create_data_loader(train_data, batch_size):
@@ -46,8 +46,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device, effect=0)
             loss, current = loss.item(), batch * batch_size
             print(f'loss: {loss:>8f}  [{current:>3d}/{total_size}]')
 
-    loss /= n_batch
-    abs_error = round(abs_error/total_size, 2)
+    total_loss /= n_batch
+    abs_error = round(abs_error/total_size, 4)
 
     return loss, abs_error, log
 
@@ -81,8 +81,8 @@ def test(model, data_loader, device, loss_fn=None, effect=0):
                 log.append([name, output, target, error])
 
     loss /= n_batch
-    abs_error = round(abs_error/total_size, 2)
-    print(f'{EFFECT_MAP[effect]}: avg MSE: {loss:>8f}, avg abs error: {abs_error}')
+    abs_error = round(abs_error/total_size, 4)
+    print(f'{PARA_MAP[effect]}: avg MSE: {loss:>8f}, avg abs error: {abs_error}')
 
     return loss, abs_error, log
 
@@ -115,11 +115,10 @@ def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
                                                 effect)
         ts_loss, ts_err, _ = test(model, test_data_loader, device, loss_fn, effect)
 
-        writer.add_scalars("Loss/" + EFFECT_MAP[effect], {'train': tr_loss, 'test': ts_loss}, epoch)
-        writer.add_scalars("Error/" + EFFECT_MAP[effect], {'train': tr_err, 'test': ts_err}, epoch)
+        writer.add_scalars("Loss/" + PARA_MAP[effect], {'train': tr_loss, 'test': ts_loss}, epoch)
+        writer.add_scalars("Error/" + PARA_MAP[effect], {'train': tr_err, 'test': ts_err}, epoch)
 
         before_lr = optimiser.param_groups[0]["lr"]
-        writer.add_scalar("Learning Rate", before_lr, epoch)
         scheduler.step()
         after_lr = optimiser.param_groups[0]["lr"]
 

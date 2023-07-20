@@ -191,10 +191,13 @@ def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
                                    {'train': tr_acc[i], 'test': ts_acc[i]}, epoch)
 
         before_lr = optimiser.param_groups[0]["lr"]
-        writer.add_scalar("Learning Rate", before_lr, epoch)
         scheduler.step()
         after_lr = optimiser.param_groups[0]["lr"]
-
+        # torch.save({
+        #     'epoch': epoch,
+        #     'model_state_dict': model.state_dict(),
+        #     'optimizer_state_dict': optimiser.state_dict()
+        #     }, PATH)
         print("learning rate: %f -> %f" % (before_lr, after_lr))
         print("---------------------------\n")
     print("Finished training")
