@@ -166,7 +166,7 @@ def test_single(model, input_data, mode="multi", effect=0):
 
 
 def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
-          device, writer, epochs, mode="multi", effect=0):
+          device, writer, epochs, path, mode="multi", effect=0):
     scheduler = lr_scheduler.LinearLR(optimiser, start_factor=1.0, end_factor=0.1, total_iters=10)
     for epoch in range(1, epochs+1):
         print(f"Epoch {epoch}")
@@ -200,4 +200,6 @@ def train(model, train_data_loader, test_data_loader, loss_fn, optimiser,
         #     }, PATH)
         print("learning rate: %f -> %f" % (before_lr, after_lr))
         print("---------------------------\n")
+        if epoch % 5 == 0:
+            torch.save(model.state_dict(), path+"_"+str(epoch)+".pth")
     print("Finished training")
