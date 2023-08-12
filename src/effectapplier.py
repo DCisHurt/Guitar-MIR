@@ -19,11 +19,11 @@ class EffectApplier():
             self.output_name = input_name + '_processed'
         else:
             self.output_name = output_name
-        self.od = -1
-        self.cs = -1
-        self.tr = -1
-        self.dl = -1
-        self.rv = -1
+        self.od = 0
+        self.cs = 0
+        self.tr = 0
+        self.dl = 0
+        self.rv = 0
         self.od_v = -1
         self.cs_v = -1
         self.tr_v = -1
@@ -46,7 +46,7 @@ class EffectApplier():
         self.board.append(pdb.Clipping(threshold_db=-3.0))
         self.board.append(pdb.Distortion(drive_db=gain_dB))
 
-        self.od = int(val / scale)
+        self.od = int(val / scale) + 1
         self.od_v = round(gain / 100.0, 2)
         return gain
 
@@ -59,7 +59,7 @@ class EffectApplier():
         self.board.append(pdb.Chorus(rate_hz=0.5, depth=depth,
                                      centre_delay_ms=20.0, feedback=0.5, mix=0.5))
 
-        self.cs = int(val / scale)
+        self.cs = int(val / scale) + 1
         self.cs_v = depth
         return depth
 
@@ -77,7 +77,7 @@ class EffectApplier():
         vst.rate = rate
         self.board.append(vst)
 
-        self.tr = int(val / scale)
+        self.tr = int(val / scale) + 1
         self.tr_v = round(rate / 10.0, 2)
         return rate
 
@@ -100,7 +100,7 @@ class EffectApplier():
 
         self.board.append(pdb.Delay(delay_seconds=time + 0.02, feedback=0.5, mix=0.5))
 
-        self.dl = int(val / scale)
+        self.dl = int(val / scale) + 1
         self.dl_v = time
         return time
 
@@ -113,7 +113,7 @@ class EffectApplier():
         self.board.append(pdb.Reverb(room_size=decay, damping=0.1, wet_level=0.75,
                                      dry_level=0.25, width=1.0, freeze_mode=0.0))
 
-        self.rv = int(val / scale)
+        self.rv = int(val / scale) + 1
         self.rv_v = decay
         return decay
 
@@ -148,31 +148,13 @@ class EffectApplier():
 
         output_name = self.output_name
 
-        if self.od > -1:
-            output_name += "_od_%s" % self.od
-            od_bool = 1
-        else:
-            od_bool = 0
-        if self.cs > -1:
-            output_name += "_cs_%s" % self.cs
-            cs_bool = 1
-        else:
-            cs_bool = 0
-        if self.tr > -1:
-            output_name += "_tr_%s" % self.tr
-            tr_bool = 1
-        else:
-            tr_bool = 0
-        if self.dl > -1:
-            output_name += "_dl_%s" % self.dl
-            dl_bool = 1
-        else:
-            dl_bool = 0
-        if self.rv > -1:
-            output_name += "_rv_%s" % self.rv
-            rv_bool = 1
-        else:
-            rv_bool = 0
+        output_name += '1' if self.od > 0 else '0'
+        output_name += '1' if self.cs > 0 else '0'
+        output_name += '1' if self.tr > 0 else '0'
+        output_name += '1' if self.dl > 0 else '0'
+        output_name += '1' if self.rv > 0 else '0'
+
+        output_name += '-' + str(self.od) + str(self.cs) + str(self.tr) + str(self.dl) + str(self.rv)
 
         output_path = os.path.join(self.output_dir, output_name + ".wav")
 
@@ -183,7 +165,7 @@ class EffectApplier():
                         bits_per_sample=16,
                         format="wav")
         return [output_name,
-                od_bool, cs_bool, tr_bool, dl_bool, rv_bool,
+                output_name[-11], output_name[-10], output_name[-9], output_name[-8], output_name[-7],
                 self.od, self.cs, self.tr, self.dl, self.rv,
                 self.od_v, self.cs_v, self.tr_v, self.dl_v, self.rv_v]
 
