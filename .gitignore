@@ -1,7 +1,4 @@
-legacy/
-_weights/
-_assets/
-_log/
+_assets/DATASET
 test.ipynb
 .vscode
 

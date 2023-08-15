@@ -15,7 +15,7 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     x, y = np.meshgrid(ind_array, ind_array)
     for x_val, y_val in zip(x.flatten(), y.flatten()):
         c = cm[y_val][x_val]
-        plt.text(x_val, y_val, "%0.2f" % (c,), va='center', ha='center', size='xx-large')
+        plt.text(x_val, y_val, "%0.4f" % (c,), va='center', ha='center', size='xx-large')
 
     plt.imshow(cm, cmap=plt.cm.YlOrRd, alpha=0.5)
     plt.title(title)

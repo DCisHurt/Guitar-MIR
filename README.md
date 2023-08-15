@@ -19,7 +19,13 @@ conda activate gt_mir
 ## Check logs
 
 ```bash
-tensorboard --logdir _log/c53_classify --port 6066 
+tensorboard --logdir _log/Legacy/c53_classify --port 6066 
+```
+
+or
+
+```bash
+tensorboard --logdir _log/Legacy/c53_parameter --port 6067 
 ```
 
 ## Dataset
