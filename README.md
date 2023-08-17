@@ -16,14 +16,14 @@ Then activate the environment you've created with
 conda activate gt_mir
 ```
 
-## Check logs
+## Check logs in Tensorboard
 
 ```bash
-tensorboard --logdir _log/Legacy/c53_classify_od_spec --port 6066 
-tensorboard --logdir _log/Legacy/c53_classify_od_mel --port 6067 
-tensorboard --logdir _log/Legacy/c53_classify_od_mfcc --port 6068 
-tensorboard --logdir _log/Legacy/c53_classify --port 6069 
-tensorboard --logdir _log/Legacy/c53_parameter --port 6070 
+tensorboard --logdir _log/Legacy/Tensorboard/c53_classify_od_spec --port 6066 
+tensorboard --logdir _log/Legacy/Tensorboard/c53_classify_od_mel --port 6067 
+tensorboard --logdir _log/Legacy/Tensorboard/c53_classify_od_mfcc --port 6068 
+tensorboard --logdir _log/Legacy/Tensorboard/c53_classify --port 6069 
+tensorboard --logdir _log/Legacy/Tensorboard/c53_parameter --port 6070 
 ```
 
 ## Dataset

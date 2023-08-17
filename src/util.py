@@ -124,3 +124,25 @@ def plot_box(data, title=None, labels=None, ylabel=None):
     plt.grid(True)
     plt.show(block=False)
     return fig
+
+
+def plot_violin(data, title=None, labels=None, ylabel=None):
+    fig = plt.figure(figsize=(12, 8), dpi=100)
+
+    bp = plt.violinplot(data,
+                        showmeans=False,
+                        showmedians=True)
+                        # labels=labels)  # will be used to label x-ticks
+    if title is not None:
+        plt.title(title)
+    if ylabel is not None:
+        plt.ylabel(ylabel)
+
+    # fill with colors
+    colors = ['#e5e2d6', '#c7bea0', '#dcc278', '#bf9a8e', '#829b7c']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+
+    plt.grid(True)
+    plt.show(block=False)
+    return fig
