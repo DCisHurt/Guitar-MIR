@@ -3,6 +3,7 @@ import librosa as lb
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
 
 
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
@@ -126,13 +127,13 @@ def plot_box(data, title=None, labels=None, ylabel=None):
     return fig
 
 
-def plot_violin(data, title=None, labels=None, ylabel=None):
+def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
     fig = plt.figure(figsize=(12, 8), dpi=100)
 
     bp = plt.violinplot(data,
                         showmeans=False,
-                        showmedians=True)
-                        # labels=labels)  # will be used to label x-ticks
+                        showmedians=True,
+                        showextrema=outlier)
     if title is not None:
         plt.title(title)
     if ylabel is not None:
@@ -140,9 +141,113 @@ def plot_violin(data, title=None, labels=None, ylabel=None):
 
     # fill with colors
     colors = ['#e5e2d6', '#c7bea0', '#dcc278', '#bf9a8e', '#829b7c']
-    for patch, color in zip(bp['boxes'], colors):
-        patch.set_facecolor(color)
-
+    for patch, color in zip(bp['bodies'], colors):
+        # patch.set_facecolor(color)
+        patch.set_edgecolor('000000')
+        patch.set_alpha(0.5)
+    plt.xticks(np.arange(1, len(labels) + 1), labels)
     plt.grid(True)
     plt.show(block=False)
     return fig
+
+
+def load_train_data(train_dir=None):
+    if train_dir is None:
+        train_dir = '_log/Legacy/Training/'
+
+    train_acc = np.genfromtxt(train_dir + 'Accuracy_train.csv', delimiter=',')
+    train_loss = np.genfromtxt(train_dir + 'Loss_train.csv', delimiter=',')
+    test_acc = np.genfromtxt(train_dir + 'Accuracy_test.csv', delimiter=',')
+    test_loss = np.genfromtxt(train_dir + 'Loss_test.csv', delimiter=',')
+
+    train_acc = np.delete(train_acc, 0, 0)
+    train_acc = np.delete(train_acc, 0, 1)
+    train_acc = np.rot90(train_acc, 1)
+    test_acc = np.delete(test_acc, 0, 0)
+    test_acc = np.delete(test_acc, 0, 1)
+    test_acc = np.rot90(test_acc, 1)
+
+    train_loss = np.delete(train_loss, 0, 0)
+    train_loss = np.delete(train_loss, 0, 1)
+    train_loss = np.rot90(train_loss, 1)
+    test_loss = np.delete(test_loss, 0, 0)
+    test_loss = np.delete(test_loss, 0, 1)
+    test_loss = np.rot90(test_loss, 1)
+
+    acc = [train_acc, test_acc]
+    loss = [train_loss, test_loss]
+
+    return acc, loss
+
+
+def load_train_data_error(train_dir=None):
+    if train_dir is None:
+        train_dir = '_log/Legacy/Training/'
+
+    train_error = np.genfromtxt(train_dir + 'Error_train.csv', delimiter=',')
+    train_loss = np.genfromtxt(train_dir + 'Loss_train.csv', delimiter=',')
+    test_error = np.genfromtxt(train_dir + 'Error_test.csv', delimiter=',')
+    test_loss = np.genfromtxt(train_dir + 'Loss_test.csv', delimiter=',')
+
+    train_error = np.delete(train_error, 0, 0)
+    train_error = np.delete(train_error, 0, 1)
+    train_error = np.rot90(train_error, 1)
+    test_error = np.delete(test_error, 0, 0)
+    test_error = np.delete(test_error, 0, 1)
+    test_error = np.rot90(test_error, 1)
+
+    train_loss = np.delete(train_loss, 0, 0)
+    train_loss = np.delete(train_loss, 0, 1)
+    train_loss = np.rot90(train_loss, 1)
+    test_loss = np.delete(test_loss, 0, 0)
+    test_loss = np.delete(test_loss, 0, 1)
+    test_loss = np.rot90(test_loss, 1)
+
+    error = [train_error, test_error]
+    loss = [train_loss, test_loss]
+
+    return error, loss
+
+
+def plot_train_line(data, num_subplot, subtitle, legend_loc,
+                    x_label, y_label, x_ticks, y_ticks,
+                    hight, width, title=None):
+
+    if len(data) != num_subplot and num_subplot != 1:
+        print('Error: data must have {} elements'.format(num_subplot))
+        return None
+
+    fig = plt.figure(figsize=(width, hight), dpi=100)
+
+    if num_subplot == 1:
+        plt.plot(data[0][1], data[0][0], label='Train')
+        plt.plot(data[1][1], data[1][0], label='Test')
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.xticks(x_ticks)
+        plt.yticks(y_ticks)
+        plt.legend(loc=legend_loc)
+        plt.title(subtitle)
+    else:
+        for i in range(num_subplot):
+            plt.subplot(1, num_subplot, i+1)
+            plt.plot(data[i][0][1], data[i][0][0], label='Train')
+            plt.plot(data[i][1][1], data[i][1][0], label='Test')
+            plt.xlabel(x_label)
+            if i == 0:
+                plt.ylabel(y_label)
+            if title is not None:
+                plt.title(title[i])
+            plt.xticks(x_ticks)
+            plt.yticks(y_ticks)
+            plt.legend(loc=legend_loc)
+        plt.suptitle(subtitle)
+    plt.show(block=False)
+    return fig
+
+
+def cm_score(data):
+    return np.round([accuracy_score(data[0], data[1]),
+                    precision_score(data[0], data[1]),
+                    recall_score(data[0], data[1]),
+                    f1_score(data[0], data[1])], 4)
