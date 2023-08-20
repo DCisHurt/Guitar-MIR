@@ -7,7 +7,8 @@ from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_sc
 
 
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
-    fig = plt.figure(figsize=(12, 8), dpi=100)
+    fig = plt.figure(figsize=(12, 8), dpi=300)
+    plt.rcParams.update({'font.size': 14})
     np.set_printoptions(precision=2)
 
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -35,7 +36,6 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     plt.gca().yaxis.set_ticks_position('none')
     plt.grid(True, which='minor', linestyle='-')
     plt.gcf().subplots_adjust(bottom=0.15)
-
     plt.show(block=False)
     return fig
 
@@ -128,7 +128,8 @@ def plot_box(data, title=None, labels=None, ylabel=None):
 
 
 def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
-    fig = plt.figure(figsize=(12, 8), dpi=100)
+    fig = plt.figure(figsize=(12, 8), dpi=200)
+    plt.rcParams.update({'font.size': 12})
 
     bp = plt.violinplot(data,
                         showmeans=False,
@@ -147,6 +148,7 @@ def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
         patch.set_alpha(0.5)
     plt.xticks(np.arange(1, len(labels) + 1), labels)
     plt.grid(True)
+    
     plt.show(block=False)
     return fig
 
@@ -217,11 +219,12 @@ def plot_train_line(data, num_subplot, subtitle, legend_loc,
         print('Error: data must have {} elements'.format(num_subplot))
         return None
 
-    fig = plt.figure(figsize=(width, hight), dpi=100)
+    fig = plt.figure(figsize=(width, hight), dpi=200)
+    plt.rcParams.update({'font.size': 14})
 
     if num_subplot == 1:
-        plt.plot(data[0][1], data[0][0], label='Train')
-        plt.plot(data[1][1], data[1][0], label='Test')
+        plt.plot(data[0][1], data[0][0], label='Train', linewidth=2, marker='s', markersize=10)
+        plt.plot(data[1][1], data[1][0], label='Test', linewidth=2, marker='s', markersize=10)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.xticks(x_ticks)
@@ -231,8 +234,8 @@ def plot_train_line(data, num_subplot, subtitle, legend_loc,
     else:
         for i in range(num_subplot):
             plt.subplot(1, num_subplot, i+1)
-            plt.plot(data[i][0][1], data[i][0][0], label='Train')
-            plt.plot(data[i][1][1], data[i][1][0], label='Test')
+            plt.plot(data[i][0][1], data[i][0][0], label='Train', linewidth=2, marker='s', markersize=10)
+            plt.plot(data[i][1][1], data[i][1][0], label='Test', linewidth=2, marker='s', markersize=10)
             plt.xlabel(x_label)
             if i == 0:
                 plt.ylabel(y_label)
