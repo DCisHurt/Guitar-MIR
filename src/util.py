@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
+from fastdtw import fastdtw
 
 
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
@@ -148,7 +149,7 @@ def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
         patch.set_alpha(0.5)
     plt.xticks(np.arange(1, len(labels) + 1), labels)
     plt.grid(True)
-    
+
     plt.show(block=False)
     return fig
 
@@ -234,8 +235,10 @@ def plot_train_line(data, num_subplot, subtitle, legend_loc,
     else:
         for i in range(num_subplot):
             plt.subplot(1, num_subplot, i+1)
-            plt.plot(data[i][0][1], data[i][0][0], label='Train', linewidth=2, marker='s', markersize=10)
-            plt.plot(data[i][1][1], data[i][1][0], label='Test', linewidth=2, marker='s', markersize=10)
+            plt.plot(data[i][0][1], data[i][0][0], label='Train',
+                     linewidth=2, marker='s', markersize=10)
+            plt.plot(data[i][1][1], data[i][1][0], label='Test',
+                     linewidth=2, marker='s', markersize=10)
             plt.xlabel(x_label)
             if i == 0:
                 plt.ylabel(y_label)
@@ -254,3 +257,58 @@ def cm_score(data):
                     precision_score(data[0], data[1]),
                     recall_score(data[0], data[1]),
                     f1_score(data[0], data[1])], 4)
+
+
+def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
+    ind = np.arange(N)*3 + .35
+    width = 0.35
+    xtra_space = 0.1
+
+    fig = plt.figure(figsize=(12, 8), dpi=300)
+    plt.rcParams.update({'font.size': 12})
+
+    for i in range(len(data)):
+        plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
+
+    # add some text for labels, title and axes ticks
+    # plt.set_ylabel('Population, millions')
+    # plt.set_title('Population: Age Structure')
+    plt.legend(legend)
+    plt.ylabel(ylabel)
+    plt.xticks(ind+(width+xtra_space)*2, xlabels)
+    plt.title(title)
+
+    plt.show(block=False)
+    return fig
+
+
+def hist_plot(data, bins, xlabel, ylabel, title):
+    fig = plt.figure(figsize=(12, 8), dpi=300)
+    plt.rcParams.update({'font.size': 12})
+
+    plt.hist(data, histtype='stepfilled', label="values", bins=bins)
+
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.xticks(ticks=bins)
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    plt.show(block=False)
+    return fig
+
+
+def mfcc_dist(a, b):
+    dist = 0
+    for x, y in zip(a, b):
+        dist = dist + (x - y) * (x - y)
+    return np.sqrt(dist)
+
+
+def similarity_percentage(waveform, remix):
+    distance, _ = fastdtw(waveform, remix, dist=mfcc_dist)
+    max_possible_distance = 64 * 64
+    normalized_distance = distance / max_possible_distance
+    similarity_percentage = (1 - normalized_distance) * 100
+    return similarity_percentage
