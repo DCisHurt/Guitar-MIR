@@ -7,9 +7,20 @@ from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_sc
 from fastdtw import fastdtw
 
 
+def font_size_update(small, medium, bigger):
+    plt.rc('font', size=small)          # controls default text sizes
+    plt.rc('axes', titlesize=bigger)     # fontsize of the axes title
+    plt.rc('axes', labelsize=medium)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=small)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=small)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=small)    # legend fontsize
+    plt.rc('figure', titlesize=bigger)  # fontsize of the figure title
+
+
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
+    font_size_update(18, 20, 20)
     fig = plt.figure(figsize=(12, 8), dpi=300)
-    plt.rcParams.update({'font.size': 14})
+
     np.set_printoptions(precision=2)
 
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -24,7 +35,7 @@ def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     plt.title(title)
     plt.colorbar()
     xlocations = np.array(range(len(classes)))
-    plt.xticks(xlocations, classes, rotation=90)
+    plt.xticks(xlocations, classes)
     plt.yticks(xlocations, classes)
     plt.ylabel('Actual label')
     plt.xlabel('Predict label')
@@ -107,7 +118,8 @@ def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
 
 
 def plot_box(data, title=None, labels=None, ylabel=None):
-    fig = plt.figure(figsize=(12, 8), dpi=100)
+    font_size_update(13, 20, 32)
+    fig = plt.figure(figsize=(12, 8), dpi=200)
 
     bp = plt.boxplot(data,
                      vert=True,  # vertical box alignment
@@ -129,8 +141,8 @@ def plot_box(data, title=None, labels=None, ylabel=None):
 
 
 def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
-    fig = plt.figure(figsize=(12, 8), dpi=200)
-    plt.rcParams.update({'font.size': 12})
+    font_size_update(13, 20, 32)
+    fig = plt.figure(figsize=(12, 8), dpi=300)
 
     bp = plt.violinplot(data,
                         showmeans=False,
@@ -220,8 +232,8 @@ def plot_train_line(data, num_subplot, subtitle, legend_loc,
         print('Error: data must have {} elements'.format(num_subplot))
         return None
 
-    fig = plt.figure(figsize=(width, hight), dpi=200)
-    plt.rcParams.update({'font.size': 14})
+    font_size_update(14, 20, 28)
+    fig = plt.figure(figsize=(width, hight), dpi=300)
 
     if num_subplot == 1:
         plt.plot(data[0][1], data[0][0], label='Train', linewidth=2, marker='s', markersize=10)
@@ -264,8 +276,8 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
     width = 0.35
     xtra_space = 0.1
 
+    font_size_update(13, 20, 26)
     fig = plt.figure(figsize=(12, 8), dpi=300)
-    plt.rcParams.update({'font.size': 12})
 
     for i in range(len(data)):
         plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
@@ -283,8 +295,8 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
 
 
 def hist_plot(data, bins, xlabel, ylabel, title):
+    font_size_update(13, 20, 28)
     fig = plt.figure(figsize=(12, 8), dpi=300)
-    plt.rcParams.update({'font.size': 12})
 
     plt.hist(data, histtype='stepfilled', label="values", bins=bins)
 
