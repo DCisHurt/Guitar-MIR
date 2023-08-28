@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
 from fastdtw import fastdtw
 
+DPI = 96
+
 
 def font_size_update(small, medium, bigger):
     plt.rc('font', size=small)          # controls default text sizes
@@ -19,7 +21,7 @@ def font_size_update(small, medium, bigger):
 
 def plot_confusion_matrix(cm, title='Confusion Matrix', classes=[]):
     font_size_update(18, 20, 20)
-    fig = plt.figure(figsize=(12, 8), dpi=300)
+    fig = plt.figure(figsize=(12, 8), dpi=DPI)
 
     np.set_printoptions(precision=2)
 
@@ -142,7 +144,7 @@ def plot_box(data, title=None, labels=None, ylabel=None):
 
 def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
     font_size_update(13, 20, 32)
-    fig = plt.figure(figsize=(12, 8), dpi=300)
+    fig = plt.figure(figsize=(12, 8), dpi=DPI)
 
     bp = plt.violinplot(data,
                         showmeans=False,
@@ -233,7 +235,7 @@ def plot_train_line(data, num_subplot, subtitle, legend_loc,
         return None
 
     font_size_update(14, 20, 28)
-    fig = plt.figure(figsize=(width, hight), dpi=300)
+    fig = plt.figure(figsize=(width, hight), dpi=DPI)
 
     if num_subplot == 1:
         plt.plot(data[0][1], data[0][0], label='Train', linewidth=2, marker='s', markersize=10)
@@ -277,7 +279,7 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
     xtra_space = 0.1
 
     font_size_update(13, 20, 26)
-    fig = plt.figure(figsize=(12, 8), dpi=300)
+    fig = plt.figure(figsize=(12, 8), dpi=DPI)
 
     for i in range(len(data)):
         plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
@@ -296,7 +298,7 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
 
 def hist_plot(data, bins, xlabel, ylabel, title):
     font_size_update(13, 20, 28)
-    fig = plt.figure(figsize=(12, 8), dpi=300)
+    fig = plt.figure(figsize=(12, 8), dpi=DPI)
 
     plt.hist(data, histtype='stepfilled', label="values", bins=bins)
 
