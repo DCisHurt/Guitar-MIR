@@ -330,7 +330,9 @@ def hist_plot(data, bins, xlabel, ylabel, title):
     plt.ylabel(ylabel)
     plt.xticks(ticks=bins)
     ticks = plt.yticks()[0]  # get ticks
-    tick_labels = ['0%', '2%', '4%', '6%', '8%', '10%', '12%']
+    tick_labels = []
+    for i in range(len(ticks)):
+        tick_labels.append(str(round(ticks[i]/len(data)*100, 1)) + '%')
     plt.yticks(ticks=ticks, labels=tick_labels)  # set new labels
     plt.title(title)
     plt.legend()
