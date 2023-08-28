@@ -162,6 +162,7 @@ def plot_violin(data, title=None, labels=None, ylabel=None, outlier=True):
         patch.set_edgecolor('000000')
         patch.set_alpha(0.5)
     plt.xticks(np.arange(1, len(labels) + 1), labels)
+    # plt.yticks(np.arange(-0.35, 0.35, 0.05))
     plt.grid(True)
 
     plt.show(block=False)
@@ -273,6 +274,32 @@ def cm_score(data):
                     f1_score(data[0], data[1])], 4)
 
 
+def multi_bar_plot_percent(*data, N, color_list, xlabels, ylabel, title, legend):
+    ind = np.arange(N)*3 + .35
+    width = 0.35
+    xtra_space = 0.1
+
+    font_size_update(13, 20, 26)
+    fig = plt.figure(figsize=(12, 8), dpi=DPI)
+
+    for i in range(len(data)):
+        plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
+
+    ticks = plt.yticks()[0]  # get ticks
+    tick_labels = []
+    for i in range(len(ticks)):
+        tick_labels.append(str(round(ticks[i]*100, 1)) + '%')
+    plt.yticks(ticks=ticks, labels=tick_labels)  # set new labels
+
+    plt.legend(legend)
+    plt.ylabel(ylabel)
+    plt.xticks(ind+(width+xtra_space)*2, xlabels)
+    plt.title(title)
+
+    plt.show(block=False)
+    return fig
+
+
 def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
     ind = np.arange(N)*3 + .35
     width = 0.35
@@ -284,9 +311,6 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
     for i in range(len(data)):
         plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
 
-    # add some text for labels, title and axes ticks
-    # plt.set_ylabel('Population, millions')
-    # plt.set_title('Population: Age Structure')
     plt.legend(legend)
     plt.ylabel(ylabel)
     plt.xticks(ind+(width+xtra_space)*2, xlabels)
@@ -300,11 +324,14 @@ def hist_plot(data, bins, xlabel, ylabel, title):
     font_size_update(13, 20, 28)
     fig = plt.figure(figsize=(12, 8), dpi=DPI)
 
-    plt.hist(data, histtype='stepfilled', label="values", bins=bins)
+    plt.hist(data, density=False, cumulative=False, label="values", bins=bins)
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.xticks(ticks=bins)
+    ticks = plt.yticks()[0]  # get ticks
+    tick_labels = ['0%', '2%', '4%', '6%', '8%', '10%', '12%']
+    plt.yticks(ticks=ticks, labels=tick_labels)  # set new labels
     plt.title(title)
     plt.legend()
     plt.grid(True)
@@ -326,3 +353,10 @@ def similarity_percentage(waveform, remix):
     normalized_distance = distance / max_possible_distance
     similarity_percentage = (1 - normalized_distance) * 100
     return similarity_percentage
+
+
+def remove_percentile_outliers(data, percent_to_drop=0.01):
+    low = np.quantile(data, (percent_to_drop/2))
+    high = np.quantile(data, 1-(percent_to_drop/2))
+
+    return data[(data >= low) & (data <= high)]
