@@ -274,7 +274,7 @@ def cm_score(data):
                     f1_score(data[0], data[1])], 4)
 
 
-def multi_bar_plot_percent(*data, N, color_list, xlabels, ylabel, title, legend):
+def multi_bar_plot_percent(*data, N, color_list, xlabel, ylabel, xticks, title, legend):
     ind = np.arange(N)*3 + .35
     width = 0.35
     xtra_space = 0.1
@@ -292,15 +292,16 @@ def multi_bar_plot_percent(*data, N, color_list, xlabels, ylabel, title, legend)
     plt.yticks(ticks=ticks, labels=tick_labels)  # set new labels
 
     plt.legend(legend)
+    plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.xticks(ind+(width+xtra_space)*2, xlabels)
+    plt.xticks(ind+(width+xtra_space)*2, xticks)
     plt.title(title)
 
     plt.show(block=False)
     return fig
 
 
-def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
+def multi_bar_plot(*data, N, color_list, xlabel, ylabel, xticks, title, legend):
     ind = np.arange(N)*3 + .35
     width = 0.35
     xtra_space = 0.1
@@ -312,8 +313,9 @@ def multi_bar_plot(*data, N, color_list, xlabels, ylabel, title, legend):
         plt.bar(ind + (width + xtra_space)*i, data[i], width, color=color_list[i])
 
     plt.legend(legend)
+    plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.xticks(ind+(width+xtra_space)*2, xlabels)
+    plt.xticks(ind+(width+xtra_space)*2, xticks)
     plt.title(title)
 
     plt.show(block=False)
